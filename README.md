@@ -31,7 +31,7 @@ const userTable = localdb.createTable({
             fieldName: "userID",
             fieldType: "string",
             uniqueIndex: true,
-            valueDefault: Localdb.CONSTANTS_VALUE_DEFAULT.AUTO_INCREMENT
+            valueDefault: Localdb.value_default.AUTO_INCREMENT
         },
         {
             fieldName: "name",

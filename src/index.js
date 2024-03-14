@@ -31,7 +31,7 @@ class Localdb{
         return Fs.read.find(table => table.tableName === tableName)?.rows || false;
     }
 
-    static get CONSTANTS_VALUE_DEFAULT(){
+    static get value_default(){
         return {
             MATH_RANDOM: symbols.math_random,
             AUTO_INCREMENT: symbols.auto_incremet,
