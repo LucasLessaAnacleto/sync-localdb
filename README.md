@@ -101,50 +101,50 @@ métodos disponíveis:
 
 ####    CREATE
 
-* save: ele espera um objeto representando a entidade defina por você na criação da tabela, ele salva como uma linha da tabela retornando false ou true
+* **save**: ele espera um objeto representando a entidade defina por você na criação da tabela, ele salva como uma linha da tabela retornando false ou true
 dependendo se salvou com sucesso ou não.
 
 ####    READ
 
-* searchAll: retorna todas as linhas da tabela em um array com as entidades contendo todos os campos.
+* **searchAll**: retorna todas as linhas da tabela em um array com as entidades contendo todos os campos.
 
-* searchAtRow: retorna a entidade de acordo com o número da linha passado no parâmetro. Obs: se passar -1 como parâmetro, retornará a ultima linha adicionada.
+* **searchAtRow**: retorna a entidade de acordo com o número da linha passado no parâmetro. Obs: se passar -1 como parâmetro, retornará a ultima linha adicionada.
 
-* searchFieldsAtRow: ao inves de retornar toda a entidade, traz apenas os campos requeridos que podem ser passados com uma string com o nome do campo, ou 
+* **searchFieldsAtRow**: ao inves de retornar toda a entidade, traz apenas os campos requeridos que podem ser passados com uma string com o nome do campo, ou 
     um array com o nome dos campos. Ele retorna apenas os campos contido na linha passada no parâmetro 'row'. Se nao achar, retorna null.
 
-* searchFieldsByCustom: assim como 'searchFieldsAtRow' retorna apenas os campos passados, porém ao invés de passar o número da linha, deve passar um callback
+* **searchFieldsByCustom**: assim como 'searchFieldsAtRow' retorna apenas os campos passados, porém ao invés de passar o número da linha, deve passar um callback
     com a condição para filtrar os dados. Se nao achar, retorna null.
 
-* findByCustom: encontra a linha da tabela em que a função de filtro customizada, retorne true, a função 'condiction' é como se fosse um callback do método 'filter'
+* **findByCustom**: encontra a linha da tabela em que a função de filtro customizada, retorne true, a função 'condiction' é como se fosse um callback do método 'filter'
     e 'find' dos arrays. Se nao achar, retorna null.
 
-* findAllByCustom: encontra um array contendo todos as linhas em que o callback 'condiction' retorna true. Se nao achar, retorna null.
+* **findAllByCustom**: encontra um array contendo todos as linhas em que o callback 'condiction' retorna true. Se nao achar, retorna null.
 
 ####     UPDATE
 
-* updateAtRow: atualiza a linha da tabela corresponde ao parâmetro 'row', com a entidade que deseja alterar. retorna false ou true
+* **updateAtRow**: atualiza a linha da tabela corresponde ao parâmetro 'row', com a entidade que deseja alterar. retorna false ou true
     dependendo se alterou com sucesso ou não.
 
-* updateFieldsAtRow: ao inves de substituir uma entidade inteira pela a nota entidade, em um objeto tendo 'field' com o nome do campo e 'value' tendo o novo valor
+* **updateFieldsAtRow**: ao inves de substituir uma entidade inteira pela a nota entidade, em um objeto tendo 'field' com o nome do campo e 'value' tendo o novo valor
     que deseja atribuir aquele campo, ou um array de objetos contendo o campo e seu valor que sera alterado. atualiza a linha da tabela corresponde ao parâmetro 'row'.
     retorna false ou true dependendo se alterou com sucesso ou não.
 
-* updateByCustom: atualiza a primeira linha da tabela em que a função de filtro customizada, retorne true, é necessário passar a entidade com os campos atualizados. 
+* **updateByCustom**: atualiza a primeira linha da tabela em que a função de filtro customizada, retorne true, é necessário passar a entidade com os campos atualizados. 
     retorna false ou true dependendo se alterou com sucesso ou não.
 
-* updateFieldsByCustom: ao invés de atualizar a linha inteira da tabela que foi filtrada através do callback passado no paramêtro 'condiction', ele altera apenas os
+* **updateFieldsByCustom**: ao invés de atualizar a linha inteira da tabela que foi filtrada através do callback passado no paramêtro 'condiction', ele altera apenas os
     campos passados. retorna false ou true dependendo se alterou com sucesso ou não.
 
 ####     DELETE
 
-* deleteAtRow: deleta a linha passada pelo o parâmetro 'row' da tabela. retorna false ou true dependendo se deletou com sucesso ou não.
+* **deleteAtRow**: deleta a linha passada pelo o parâmetro 'row' da tabela. retorna false ou true dependendo se deletou com sucesso ou não.
 
-* deleteByCustom: deleta a linha da tabela em que a função do filtro customizada seja verdadeira. retorna false ou true dependendo se deletou com sucesso ou não.
+* **deleteByCustom**: deleta a linha da tabela em que a função do filtro customizada seja verdadeira. retorna false ou true dependendo se deletou com sucesso ou não.
 
 ####    OUTROS
 
-* existValueInTable: retorna true caso exista aquele valor passado no paramêtro 'value' existe no campo passado no paramêtro 'field', se nao retorna false
+* **existValueInTable**: retorna true caso exista aquele valor passado no paramêtro 'value' existe no campo passado no paramêtro 'field', se nao retorna false
 
-* existAtRow: retorna true caso exista essa linha na tabela.
+* **existAtRow**: retorna true caso exista essa linha na tabela.
 
