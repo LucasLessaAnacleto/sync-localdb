@@ -82,6 +82,7 @@ uma propriedade booleana que vem como padrão false, se for true, aquele campo n
 e depois mudar o nome para "usuarios", ele criara uma outra tabela diferente, ficando uma tabela "users" e outra tabela "usuarios". Para não ficar acumulando
 tabelas que nao será mais utilizadas, utilizamos uma função monitora, que depois de um certo tempo de execução (por padrão 3 minutos), ele delete todas as 
 tabelas em desuso no código, se quiser mudar esse tempo, é possível declarando o novo tempo no construtor da classe localdb, sendo o mínimo permitido, 0.25 minutos.
+<br>  
 
 ```js
 const localdb = new Localdb(1); // A cada 1 minuto de tempo de execução do código, ele apagara as tabelas em desuso
@@ -90,6 +91,7 @@ const localdb = new Localdb(1); // A cada 1 minuto de tempo de execução do có
 3. Se quiser alterar o nome de uma tabela, sem perder os dados dela, utilize o método do localdb chamado 'renameTable' passando o nome atual da tabela, e o nome que 
 deseja alterar. É importante remover esse código após rodar uma vez. A mesma coisa acontece para um campo de uma tabela, utilizando o método 'remameField' passando 
 o nome atual e o novo nome do campo. Além disso é possível, deletar um campo caso deseje utilizando o 'dropField' passando o nome do campo que deseja excluir da tabela.
+<br>  
 
 ```js
 localdb.renameTable("users", "usuarios"); // alterou o nome da tabela 'users' para 'usuarios'
