@@ -4,7 +4,7 @@
   "description": "Um database local para criar projetos rápidos sem se preocupar com configuração de bancos de dados, tudas as operações são síncronas, ou seja, não precisa esperar para efetuar as operações com o database",
   "main": "src/index.js",
   "scripts": {
-    "start": "node src/index.js"
+    "test": "node echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
     "type": "git",
