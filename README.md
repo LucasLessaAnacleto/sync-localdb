@@ -64,17 +64,17 @@ pode ficar vazio.
 
 * **valueDefault**<br>
 essa propriedade, se definida, preenche o campo com um valor padrão caso aquele campo esteja vazio na hora de cadastrar.
-É possível usar uma forma de valor padrão nativo, utilizando as constantes staticas da classe Localdb:
-AUTO_INCREMENT: ele preenche auto incrementando começando do 0.
-MATH_RANDOM: ele preenche com um valor aleatório de 0 à 1.
-UUID: ele preenche com um uuid.
-DATE_NOW: ele preenche com a data atual, ano/mes/dia
-HOURS_NOW: ele preenche com a hora atual.
-YEAR_NOW: ele preenche com o ano atual.
-DAY_NOW: ele preenche com o dia atual.
-    Além disso é possível atribuir uma função para gerar um valor padrão personalizado, ganhando como paramêtro da função os proprios
-dados daquela entidade.
-TIME_STAMP: ele preenche com o método Date.now().
+É possível usar uma forma de valor padrão nativo, utilizando as constantes staticas da classe Localdb:<br>
+AUTO_INCREMENT: ele preenche auto incrementando começando do 0.<br>
+MATH_RANDOM: ele preenche com um valor aleatório de 0 à 1.<br>
+UUID: ele preenche com um uuid.<br>
+DATE_NOW: ele preenche com a data atual, ano/mes/dia.<br>
+HOURS_NOW: ele preenche com a hora atual.<br>
+YEAR_NOW: ele preenche com o ano atual.<br>
+DAY_NOW: ele preenche com o dia atual.<br><br>
+Além disso é possível atribuir uma função para gerar um valor padrão personalizado, ganhando como paramêtro da função os proprios
+dados daquela entidade.<br>
+TIME_STAMP: ele preenche com o método Date.now().<br>
 
 * **uniqueIndex**<br>
 uma propriedade booleana que vem como padrão false, se for true, aquele campo não permitirá duplicação de valores. 
@@ -98,7 +98,7 @@ o nome atual e o novo nome do campo. Além disso é possível, deletar um campo 
 ```js
 localdb.renameTable("users", "usuarios"); // alterou o nome da tabela 'users' para 'usuarios'
 userTable.renameField("id", "userID"); // alterou o campo 'id' da tabela contida na instancia 'userTable', renomeando para 'userID'
-userTable.dropFiel("age"); // deletou a coluna 'age' e todos os dados contida nela da tabela contida na instancia 'userTable'
+userTable.dropField("age"); // deletou a coluna 'age' e todos os dados contida nela da tabela contida na instancia 'userTable'
 ``` 
 <br>
 4. Agora vc pode utilizar as operações de banco de dados utilizando os métodos disponíveis na instancia da tabela criada pelo o 'localdb.createTable'.
