@@ -71,10 +71,10 @@ UUID: ele preenche com um uuid.<br>
 DATE_NOW: ele preenche com a data atual, ano/mes/dia.<br>
 HOURS_NOW: ele preenche com a hora atual.<br>
 YEAR_NOW: ele preenche com o ano atual.<br>
-DAY_NOW: ele preenche com o dia atual.<br><br>
-Além disso é possível atribuir uma função para gerar um valor padrão personalizado, ganhando como paramêtro da função os proprios
-dados daquela entidade.<br>
+DAY_NOW: ele preenche com o dia atual.<br>
 TIME_STAMP: ele preenche com o método Date.now().<br>
+    Além disso é possível atribuir uma função para gerar um valor padrão personalizado, ganhando como paramêtro da função os proprios
+dados daquela entidade.<br>
 
 * **uniqueIndex**<br>
 uma propriedade booleana que vem como padrão false, se for true, aquele campo não permitirá duplicação de valores. 
