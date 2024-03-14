@@ -67,7 +67,7 @@ class Table {
         const table = this.getTable;
         table.push(newData)
         insertData( this.name, newData);
-    } //
+    } 
 
     // UPDATE
 
@@ -75,7 +75,7 @@ class Table {
         if(!this.existAtRow(row)) return false;
         this.isValidFinalEntity(entity);
         return updateData(this.name, row, entity);
-    } //
+    } 
 
     updateFieldsAtRow(fieldUpdates, row){
         if(typeof fieldUpdates !== 'object') throw new Error("O método 'updateFieldsAtRow' deve receber um objeto contendo o 'field' e o 'value' a qual"+
@@ -89,7 +89,7 @@ class Table {
         });
         this.isValidFinalEntity(rowData);
         return updateData(this.name, row, rowData);
-    } //
+    } 
 
     updateByCustom(entity, condiction){
         if(typeof condiction !== "function") throw new Error("metodo 'updateByCustom' deve receber uma função paramêtro");
@@ -97,14 +97,14 @@ class Table {
         if(rowIndex < 0) return false;
         this.isValidFinalEntity(entity);
         return updateData(this.name, rowIndex, entity);
-    } //
+    } 
 
     updateFieldsByCustom(fieldUpdates, condiction){
         if(typeof condiction !== "function") throw new Error("metodo 'updateByCustom' deve receber uma função paramêtro");
         const rowIndex = this.getTable.findIndex(condiction);
         if(rowIndex < 0) return false;
         return this.updateFieldsAtRow(fieldUpdates, rowIndex);
-    } //
+    } 
 
     // DELETE
 
@@ -113,24 +113,24 @@ class Table {
         if(!this.existAtRow(row)) return false;
         deleteData(this.name, row);
         return true;
-    } //
+    } 
 
     deleteByCustom( condiction ){
         const rowIndex = this.getTable.findIndex(condiction);
         if(rowIndex < 0) return false;
         return deleteData(this.name, rowIndex);
-    } //
+    } 
 
     // SELECT
 
     searchAll(){
         return this.getTable || null;
-    } //
+    } 
 
     searchAtRow( row ){
         if(typeof row !== "number") throw new Error("o método 'seatchAtRow' deve receber o número da linha que deseja buscar");
         return this.getTable.at(row)
-    } //
+    } 
 
     searchFieldsAtRow(fieldSearchs, row){
         const rowData = this.searchAtRow(row);
@@ -149,24 +149,24 @@ class Table {
         }else{
             return resultSearch
         }
-    } //
+    } 
 
     searchFieldsByCustom(fieldSearchs, condiction){
         if(typeof condiction !== "function") throw new Error("metodo 'searchFieldsByCustom' deve receber uma função paramêtro");
         const rowIndex = this.getTable.findIndex(condiction);
         if(rowIndex < 0) return false;
         return this.searchFieldsAtRow(fieldSearchs, rowIndex);
-    } //
+    } 
 
     findByCustom( condiction ){
         if(typeof condiction !== "function") throw new Error("metodo 'findByCustom' deve receber uma função paramêtro");
         return this.getTable.find(condiction) || null;
-    } //
+    } 
 
     findAllByCustom( condiction ){
         if(typeof condiction !== "function") throw new Error("metodo findByCustom deve receber uma função paramêtro");
         return this.getTable.filter(condiction);
-    } //
+    } 
 
     // EXISTS
 
@@ -178,6 +178,22 @@ class Table {
     existAtRow( row ){
         if(typeof row !== "number" || row % 1 !== 0) throw new Error("o método 'existAtRow' deve receber a linha em que deseja verificar a existência em 'integer'");
         return !!this.getTable.at(row) || false;
+    }
+
+    // DDL
+
+    renameTable(newTableName){
+        if(typeof newTableName !== "string" || newTableName.length < 1) throw new Error("Esse nome nao é válido para uma tabela");
+        const i = Fs.read.findIndex(tb => tb.tableName === this.name);
+        if(i < 0) throw new Error("Não foi possível encontrar uma tabela com esse nome");
+        const db = Fs.read;
+        if( !Fs.read.find(tb => (tb.tableName === newTableName)) ){
+            db[i].tableName = newTableName;
+            Fs.create(db);
+        }else{
+            throw new Error("Não é possível renomeiar a tabela no momento, já existe uma tabela criada com esse nome!");
+        }
+        
     }
 
     // OUTERS

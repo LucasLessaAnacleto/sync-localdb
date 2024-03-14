@@ -24,7 +24,8 @@ const localdb = new Localdb();
 1. Criar uma table client
 
 ```js
-const userTable = localdb.createTable("users", {
+const userTable = localdb.createTable({
+    tableName: "users",
     fields: [
         {
             fieldName: "userID",

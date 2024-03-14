@@ -9,7 +9,7 @@ class Localdb{
         monitorRemoveTables(timeMonitor || 3);
     }
 
-    createTable( tableName, { fields } ){
+    createTable( { tableName, fields } ){
         validation.isMinMax( 
             validation.validType( tableName, 
                 {type: "string", parameterName: "tableName"}

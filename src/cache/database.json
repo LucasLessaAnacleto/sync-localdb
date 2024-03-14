@@ -1,10 +1,10 @@
 [
   {
-    "tableName": "users",
+    "tableName": "testA",
     "rows": [
       {
-        "userID": "0",
-        "name": "peido"
+        "a": "ola mundo",
+        "numeric": 21
       }
     ]
   }
