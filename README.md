@@ -77,15 +77,18 @@ dados daquela entidade.
 * **uniqueIndex**<br>
 uma propriedade booleana que vem como padrão false, se for true, aquele campo não permitirá duplicação de valores. 
 <br>
+<br>
 2. O sync-localdb armazena os dados localmente, e cria as tables em tempo de execução, ou seja, se vc rodar o código uma vez criando a tabela "users",
 e depois mudar o nome para "usuarios", ele criara uma outra tabela diferente, ficando uma tabela "users" e outra tabela "usuarios". Para não ficar acumulando
 tabelas que nao será mais utilizadas, utilizamos uma função monitora, que depois de um certo tempo de execução (por padrão 3 minutos), ele delete todas as 
 tabelas em desuso no código, se quiser mudar esse tempo, é possível declarando o novo tempo no construtor da classe localdb, sendo o mínimo permitido, 0.25 minutos.
-
+<br>
+<br>
 ```js
 const localdb = new Localdb(1); // A cada 1 minuto de tempo de execução do código, ele apagara as tabelas em desuso
 ```
-
+<br>
+<br>
 3. Se quiser alterar o nome de uma tabela, sem perder os dados dela, utilize o método do localdb chamado 'renameTable' passando o nome atual da tabela, e o nome que 
 deseja alterar. É importante remover esse código após rodar uma vez. A mesma coisa acontece para um campo de uma tabela, utilizando o método 'remameField' passando 
 o nome atual e o novo nome do campo. Além disso é possível, deletar um campo caso deseje utilizando o 'dropField' passando o nome do campo que deseja excluir da tabela.
@@ -95,7 +98,8 @@ localdb.renameTable("users", "usuarios"); // alterou o nome da tabela 'users' pa
 userTable.renameField("id", "userID"); // alterou o campo 'id' da tabela contida na instancia 'userTable', renomeando para 'userID'
 userTable.dropFiel("age"); // deletou a coluna 'age' e todos os dados contida nela da tabela contida na instancia 'userTable'
 ``` 
-
+<br>
+<br>
 4. Agora vc pode utilizar as operações de banco de dados utilizando os métodos disponíveis na instancia da tabela criada pelo o 'localdb.createTable'.
 métodos disponíveis:
 
