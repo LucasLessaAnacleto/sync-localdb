@@ -91,7 +91,7 @@ const localdb = new Localdb(1); // A cada 1 minuto de tempo de execução do có
 3. Se quiser alterar o nome de uma tabela, sem perder os dados dela, utilize o método do localdb chamado 'renameTable' passando o nome atual da tabela, e o nome que 
 deseja alterar. É importante remover esse código após rodar uma vez. A mesma coisa acontece para um campo de uma tabela, utilizando o método 'remameField' passando 
 o nome atual e o novo nome do campo. Além disso é possível, deletar um campo caso deseje utilizando o 'dropField' passando o nome do campo que deseja excluir da tabela.
-<br>  
+<br><br>  
 
 ```js
 localdb.renameTable("users", "usuarios"); // alterou o nome da tabela 'users' para 'usuarios'
