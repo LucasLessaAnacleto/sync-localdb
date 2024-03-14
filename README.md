@@ -49,19 +49,19 @@ contendo no mínimo o nome do campo (fieldName) e o tipo do campo (fieldType), a
 pode adicionar a propriedade 'optional', 'valueDefault' e 'uniqueIndex'. Abaixo terá mais detalhado
 sobre oq faz cada propriedade dessas:
 
-* fieldName
+* **fieldName:**<br>
 deve ser uma string contendo o nome daquele campo, basicamente o nome da coluna da tabela.
 
-* fieldType
+* **fieldType**<br>
 deve ser uma string ou um array de string, contendo o tipo ou os tipos que aquele campo permite.
 todos os tipos disponíveis:
 "any", "string", "number", "boolean", "array", "object", "function", "undefined", "int", "float", "null", "NaN", "Infinity"
 
-* optional
+* **optional**<br>
 deve ser um booleano, se não definir ele, vem por padrão false, e se definido como true aquele campo
 pode ficar vazio.
 
-* valueDefault
+* **valueDefault**<br>
 essa propriedade, se definida, preenche o campo com um valor padrão caso aquele campo esteja vazio na hora de cadastrar.
 É possível usar uma forma de valor padrão nativo, utilizando as constantes staticas da classe Localdb:
 AUTO_INCREMENT: ele preenche auto incrementando começando do 0.
@@ -74,9 +74,9 @@ DAY_NOW: ele preenche com o dia atual.
     Além disso é possível atribuir uma função para gerar um valor padrão personalizado, ganhando como paramêtro da função os proprios
 dados daquela entidade.
 
-* uniqueIndex
+* **uniqueIndex**<br>
 uma propriedade booleana que vem como padrão false, se for true, aquele campo não permitirá duplicação de valores. 
-
+<br>
 2. O sync-localdb armazena os dados localmente, e cria as tables em tempo de execução, ou seja, se vc rodar o código uma vez criando a tabela "users",
 e depois mudar o nome para "usuarios", ele criara uma outra tabela diferente, ficando uma tabela "users" e outra tabela "usuarios". Para não ficar acumulando
 tabelas que nao será mais utilizadas, utilizamos uma função monitora, que depois de um certo tempo de execução (por padrão 3 minutos), ele delete todas as 
@@ -99,12 +99,12 @@ userTable.dropFiel("age"); // deletou a coluna 'age' e todos os dados contida ne
 4. Agora vc pode utilizar as operações de banco de dados utilizando os métodos disponíveis na instancia da tabela criada pelo o 'localdb.createTable'.
 métodos disponíveis:
 
-### CREATE
+####    CREATE
 
 * save: ele espera um objeto representando a entidade defina por você na criação da tabela, ele salva como uma linha da tabela retornando false ou true
 dependendo se salvou com sucesso ou não.
 
-### READ
+####    READ
 
 * searchAll: retorna todas as linhas da tabela em um array com as entidades contendo todos os campos.
 
@@ -121,7 +121,7 @@ dependendo se salvou com sucesso ou não.
 
 * findAllByCustom: encontra um array contendo todos as linhas em que o callback 'condiction' retorna true. Se nao achar, retorna null.
 
-### UPDATE
+####     UPDATE
 
 * updateAtRow: atualiza a linha da tabela corresponde ao parâmetro 'row', com a entidade que deseja alterar. retorna false ou true
     dependendo se alterou com sucesso ou não.
@@ -136,13 +136,13 @@ dependendo se salvou com sucesso ou não.
 * updateFieldsByCustom: ao invés de atualizar a linha inteira da tabela que foi filtrada através do callback passado no paramêtro 'condiction', ele altera apenas os
     campos passados. retorna false ou true dependendo se alterou com sucesso ou não.
 
-### DELETE
+####     DELETE
 
 * deleteAtRow: deleta a linha passada pelo o parâmetro 'row' da tabela. retorna false ou true dependendo se deletou com sucesso ou não.
 
 * deleteByCustom: deleta a linha da tabela em que a função do filtro customizada seja verdadeira. retorna false ou true dependendo se deletou com sucesso ou não.
 
-### OUTROS
+####    OUTROS
 
 * existValueInTable: retorna true caso exista aquele valor passado no paramêtro 'value' existe no campo passado no paramêtro 'field', se nao retorna false
 
