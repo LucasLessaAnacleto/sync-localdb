@@ -1,10 +1,14 @@
 {
   "name": "sync-localdb",
   "version": "1.0.0",
-  "description": "Um database local para criar projetos rápidos sem se preocupar com configuração de bancos de dados e tudo com operações syncronas, ou seja, não precisa esperar para efetuar as operações com o database",
+  "description": "Um database local para criar projetos rápidos sem se preocupar com configuração de bancos de dados, tudas as operações são síncronas, ou seja, não precisa esperar para efetuar as operações com o database",
   "main": "src/index.js",
   "scripts": {
     "start": "node src/index.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LucasLessaAnacleto/sync-localdb.git"
   },
   "keywords": [
     "System file",
@@ -15,6 +19,7 @@
   ],
   "author": "LucasLessaAnacleto",
   "license": "ISC",
+  "homepage": "https://github.com/LucasLessaAnacleto/sync-localdb#readme",
   "dependencies": {
     "uuid": "^9.0.1"
   }
