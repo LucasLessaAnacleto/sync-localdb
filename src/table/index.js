@@ -196,6 +196,44 @@ class Table {
         
     }
 
+    renameField(currentNameField, newNameField){
+        if(typeof currentNameField !== "string" || currentNameField.length < 1 
+        || typeof newNameField !== "string" || newNameField.length < 1) 
+            throw new Error("O nome do campo atual ou o novo nome do campo estão inválidos, devem ser strings");
+        const db = Fs.read;
+        const tableIndex = db.findIndex(tb => tb.tableName === this.name);
+        if(this.rules.types[currentNameField] === undefined) throw new Error("Não existe nenhum campo com esse nome");
+        db[tableIndex].rows.forEach((rowData, i) => {
+            const newRowData = {
+                [newNameField]: rowData[currentNameField]
+            }
+            for(const field in rowData){
+                if(field !== currentNameField){
+                    newRowData[field] = rowData[field]
+                }
+            }
+            db[tableIndex].rows[i] = newRowData;
+        });
+        Fs.create(db);
+    }
+
+    dropField(nameField){
+        if(typeof nameField !== "string" || nameField.length < 1) 
+            throw new Error("O nome do campo está inválido, deve ser strings");
+        const db = Fs.read;
+        const tableIndex = db.findIndex(tb => tb.tableName === this.name);
+        db[tableIndex].rows.forEach((rowData, i) => {
+            const newRowdata = {};
+            for(const field in rowData){
+                if(field !== nameField){
+                    newRowdata[field] = rowData[field];
+                } 
+            }
+            db[tableIndex].rows[i] = newRowdata;
+        })
+        Fs.create(db);
+    }
+
     // OUTERS
 
     get getTable(){
@@ -223,6 +261,8 @@ class Table {
             value = new Date().getDate()
         }else if(symbols.year_now === symbol){
             value = new Date().getFullYear();
+        }else if(symbols.time_stamp === symbol){
+            value = Date.now();
         }else{
             throw new Error("Esse tipo de valor padrão não foi reconhecido, utilize uma função personalisada");
         }

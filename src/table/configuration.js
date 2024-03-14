@@ -10,6 +10,7 @@ const symbols = {
     hours_now: Symbol("Hour"),
     year_now: Symbol("Year"),
     day_now: Symbol("Day"),
+    time_stamp: Symbol("timestamp")
 }
 
 const tablesMonitor = [];

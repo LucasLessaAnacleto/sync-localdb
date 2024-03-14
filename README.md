@@ -74,6 +74,7 @@ YEAR_NOW: ele preenche com o ano atual.
 DAY_NOW: ele preenche com o dia atual.
     Além disso é possível atribuir uma função para gerar um valor padrão personalizado, ganhando como paramêtro da função os proprios
 dados daquela entidade.
+TIME_STAMP: ele preenche com o método Date.now().
 
 * **uniqueIndex**<br>
 uma propriedade booleana que vem como padrão false, se for true, aquele campo não permitirá duplicação de valores. 

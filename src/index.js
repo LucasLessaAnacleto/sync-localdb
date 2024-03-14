@@ -40,6 +40,7 @@ class Localdb{
             HOURS_NOW: symbols.hours_now,
             YEAR_NOW: symbols.year_now,
             DAY_NOW: symbols.day_now,
+            TIME_STAMP: symbols.time_stamp
         }
     }
 }
