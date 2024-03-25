@@ -167,9 +167,9 @@ class ValidationHandler{
             throw new Error("Não foi possível verificar o min e max de "+value+" do tipo "+typeValue);
         }
 
-        let text = (existMin) ? "maior que "+min : "";
+        let text = (existMin) ? "maior ou igual que "+min : "";
         text += (!!text && existMax) ? " e " : "";
-        text += (existMax) ? "menor que "+max : "";
+        text += (existMax) ? "menor ou igual que "+max : "";
 
         if(typeValue === "number") throw new Error("O número passado deve ser "+text+" para ser válido\nValor: >> "+value+" <<");
         if(typeValue === "array") throw new Error("O número de itens do array passado deve ser "+text+" para ser válido\nValor: >> "+value+" <<");

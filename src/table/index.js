@@ -1,45 +1,44 @@
 const validation = require("../scripts/ValidationHandler.js");
 const Fs = require("../scripts/fileSystem.js");
-const { setRules, uuid, symbols, registerTable } = require("./configuration.js");
+const { uuid, symbols, registerTable, updateRegisterTable } = require("./configuration.js");
 
 const insertData = function(tableName, rowData){  
     const db = Fs.read;
-    const tableIndex = db.findIndex(tb => tb.tableName === tableName);
-    if(tableIndex < 0) return false;
-    db[tableIndex].rows.push( rowData );
+    if(!db[tableName] || db[tableName].constructor !== Array ) return false;
+    db[tableName].push( rowData );
     Fs.create(db);
     return true;
 }
 
 const deleteData = function(tableName, row){
     const db = Fs.read;
-    const tableIndex = db.findIndex(tb => tb.tableName === tableName);
-    if(tableIndex < 0) return false;
-    db[tableIndex].rows.splice(row, 1);
+    if(!db[tableName] || db[tableName].constructor !== Array ) return false;
+    db[tableName].splice(row, 1);
     Fs.create(db);
     return true;
 }
 
 const updateData = function(tableName, row, rowData){  
     const db = Fs.read;
-    const tableIndex = db.findIndex(tb => tb.tableName === tableName);
-    if(tableIndex < 0) return false;
-    db[tableIndex].rows[row] = rowData;
+    if(!db[tableName]) return false;
+    if(!db[tableName][row]) return false;
+    db[tableName][row] = rowData;
     Fs.create(db);
     return true;
 }
 
 class Table {
-    constructor(name, fields, localdb){
-        let getRule = setRules(fields);
-        this.rules = getRule.rules;
-        this.validInputEntity = getRule.validInputEntity;
-        this.isOptionalField = getRule.isOptionalField;
-        this.isValueDefaultField = getRule.isValueDefaultField;
-        this.isUniqueIndexField = getRule.isUniqueIndexField;
+    constructor(name, rules, localdb, migrations, migrationTable){
+        this.rules = rules.rules;
+        this.validInputEntity = rules.validInputEntity;
+        this.isOptionalField = rules.isOptionalField;
+        this.isValueDefaultField = rules.isValueDefaultField;
+        this.isUniqueIndexField = rules.isUniqueIndexField;
         this.name = name;
         this.localdb = localdb;
-        if(!this.getTable) Fs.add({tableName: this.name, rows: []});
+        this.migration = migrations;
+        this.migrationTable = migrationTable;
+        if(!this.getTable) Fs.add({tableName: this.name, data: []});
         registerTable(this.name);
     }
 
@@ -64,8 +63,6 @@ class Table {
             newData[field] = (this.isOptionalField(field) || entity[field] !== undefined) ? entity[field] : 
                 (()=>{throw new Error("O campo '"+field+"' não pode estar vazio para cadastrar no banco")})();
         }
-        const table = this.getTable;
-        table.push(newData)
         insertData( this.name, newData);
     } 
 
@@ -73,8 +70,16 @@ class Table {
 
     updateAtRow(entity, row){
         if(!this.existAtRow(row)) return false;
-        this.isValidFinalEntity(entity);
+        this.validFinalEntity(entity);
         return updateData(this.name, row, entity);
+    }
+
+    updateByCustom(entity, condiction){
+        if(typeof condiction !== "function") throw new Error("metodo 'updateByCustom' deve receber uma função paramêtro");
+        const rowIndex = this.getTable.findIndex(condiction);
+        if(rowIndex < 0) return false;
+        this.validFinalEntity(entity);
+        return updateData(this.name, rowIndex, entity);
     } 
 
     updateFieldsAtRow(fieldUpdates, row){
@@ -87,16 +92,8 @@ class Table {
         fieldUpdates.forEach( ({field, value}) => {
             rowData[field] = value;
         });
-        this.isValidFinalEntity(rowData);
+        this.validFinalEntity(rowData);
         return updateData(this.name, row, rowData);
-    } 
-
-    updateByCustom(entity, condiction){
-        if(typeof condiction !== "function") throw new Error("metodo 'updateByCustom' deve receber uma função paramêtro");
-        const rowIndex = this.getTable.findIndex(condiction);
-        if(rowIndex < 0) return false;
-        this.isValidFinalEntity(entity);
-        return updateData(this.name, rowIndex, entity);
     } 
 
     updateFieldsByCustom(fieldUpdates, condiction){
@@ -182,28 +179,35 @@ class Table {
 
     // DDL
 
-    renameTable(newTableName){
+    renameTable(newTableName, objMigration){
+        const migration = this.migration.error(objMigration);
+        if(this.migration.executed(migration)) return;
         if(typeof newTableName !== "string" || newTableName.length < 1) throw new Error("Esse nome nao é válido para uma tabela");
-        const i = Fs.read.findIndex(tb => tb.tableName === this.name);
-        if(i < 0) throw new Error("Não foi possível encontrar uma tabela com esse nome");
         const db = Fs.read;
-        if( !Fs.read.find(tb => (tb.tableName === newTableName)) ){
-            db[i].tableName = newTableName;
-            Fs.create(db);
+        const newDb = {}
+        if( db[newTableName] === undefined){
+            for(const table in db){
+                if(table !== this.name){
+                    newDb[table] = db[table];
+                }
+            }
+            newDb[newTableName] = db[this.name];
+            Fs.create(newDb);
         }else{
             throw new Error("Não é possível renomeiar a tabela no momento, já existe uma tabela criada com esse nome!");
         }
-        
+        this.migration.updateName(migration, this.name, newTableName);
+        updateRegisterTable(this.name, newTableName);
+        this.name = newTableName;
     }
 
     renameField(currentNameField, newNameField){
         if(typeof currentNameField !== "string" || currentNameField.length < 1 
         || typeof newNameField !== "string" || newNameField.length < 1) 
             throw new Error("O nome do campo atual ou o novo nome do campo estão inválidos, devem ser strings");
-        const db = Fs.read;
-        const tableIndex = db.findIndex(tb => tb.tableName === this.name);
         if(this.rules.types[currentNameField] === undefined) throw new Error("Não existe nenhum campo com esse nome");
-        db[tableIndex].rows.forEach((rowData, i) => {
+        const db = Fs.read;
+        db[this.name].forEach((rowData, i) => {
             const newRowData = {
                 [newNameField]: rowData[currentNameField]
             }
@@ -212,7 +216,7 @@ class Table {
                     newRowData[field] = rowData[field]
                 }
             }
-            db[tableIndex].rows[i] = newRowData;
+            db[this.name][i] = newRowData;
         });
         Fs.create(db);
     }
@@ -221,15 +225,24 @@ class Table {
         if(typeof nameField !== "string" || nameField.length < 1) 
             throw new Error("O nome do campo está inválido, deve ser strings");
         const db = Fs.read;
-        const tableIndex = db.findIndex(tb => tb.tableName === this.name);
-        db[tableIndex].rows.forEach((rowData, i) => {
+        const deleteList = [];
+        db[this.name].forEach((rowData, i) => {
             const newRowdata = {};
             for(const field in rowData){
                 if(field !== nameField){
                     newRowdata[field] = rowData[field];
                 } 
             }
-            db[tableIndex].rows[i] = newRowdata;
+            if(Object.keys(newRowdata).length > 0) {
+                db[this.name][i] = newRowdata
+            }else{
+                deleteList.push( i );
+            }
+        });
+        let j = 0;
+        deleteList.sort((a,b) => a > b).forEach(i => {
+
+            db[this.name].splice(i-(j++),1);
         })
         Fs.create(db);
     }
@@ -237,7 +250,7 @@ class Table {
     // OUTERS
 
     get getTable(){
-        return this.localdb.getTable(this.name);
+        return Fs.read[this.name];
     }
 
     setDefaultValue(symbol, field, inputEntity){
@@ -273,7 +286,7 @@ class Table {
         return validation.validType(value, {type: typeEspectate});
     }
 
-    isValidFinalEntity(entity){
+    validFinalEntity(entity){
         if(entity === null || entity?.constructor === Array ||  typeof entity !== "object") 
             throw new Error("O paramêtro 'entity' deve ser um objeto contendo todas os campos definidos na criação da 'table'");
         for(const field in this.rules.types){
@@ -285,8 +298,6 @@ class Table {
             }catch(err){
                 throw new Error("O campo '"+field+"' deve ser definido\ndetalhes: "+err.message);   
             }
-            
-            
         }
         return true;
     }

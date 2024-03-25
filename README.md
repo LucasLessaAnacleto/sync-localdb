@@ -19,6 +19,10 @@ import Localdb from "sync-localdb";
 const localdb = new Localdb();
 ```
 
+## Versões:
+* <strong>v1.0</strong> - Modificado dia 14 de março de 2024
+* <a href="#2.0"><strong>v2.0</strong> - Modificado dia 14 de março de 2024</a> 
+
 ## Primeiros passos:
 
 1. Criar uma table client
@@ -152,4 +156,10 @@ dependendo se salvou com sucesso ou não.
 * **existValueInTable**: retorna true caso exista aquele valor passado no paramêtro 'value' existe no campo passado no paramêtro 'field', se nao retorna false
 
 * **existAtRow**: retorna true caso exista essa linha na tabela.
+<br><br>
+<div id="2.0"><br>
+
+## O que mudou na versão v2.0?
+
+</div>
 

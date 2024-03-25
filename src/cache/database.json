@@ -1,1 +1,52 @@
-[]
+{
+  "migrations": {
+    "listExecuted": [
+      "createTable",
+      "rename",
+      "createTable2"
+    ],
+    "testA": {
+      "tableName": "testB",
+      "rules": {
+        "types": {
+          "name": "string",
+          "age": "number"
+        },
+        "optional": {
+          "name": false,
+          "age": true
+        },
+        "valueDefaults": {
+          "name": null,
+          "age": null
+        },
+        "uniqueIndex": {
+          "name": false,
+          "age": false
+        }
+      }
+    },
+    "testA1": {
+      "tableName": "testA",
+      "rules": {
+        "types": {
+          "index": "number",
+          "teacher": "string"
+        },
+        "optional": {
+          "index": false,
+          "teacher": false
+        },
+        "valueDefaults": {
+          "teacher": null
+        },
+        "uniqueIndex": {
+          "index": false,
+          "teacher": false
+        }
+      }
+    }
+  },
+  "testB": [],
+  "testA": []
+}

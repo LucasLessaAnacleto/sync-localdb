@@ -1,15 +1,32 @@
 const Fs = require("./scripts/fileSystem.js");
 const validation = require("./scripts/ValidationHandler.js");
-const {symbols, monitorRemoveTables} = require("./table/configuration.js");
+const { setRules, symbols, monitorRemoveTables, migrations } = require("./table/configuration.js");
 const Table = require("./table/index.js");
+
+
 
 class Localdb{
     constructor(timeMonitor){
-        if(Fs.isVoid()) Fs.create([]);
+        if(Fs.isVoid()) Fs.create({});
         monitorRemoveTables(timeMonitor || 3);
+        this.migration = migrations();
     }
 
-    createTable( { tableName, fields } ){
+    createTable( { tableName, fields, migration, index } ){
+        this.migration.error(migration);
+        if(this.migration.executed(migration)){
+            let migrationTable = tableName;
+            if(!this.migration.existTable(tableName)) throw new Error("Não existe essa tabela nas migrations!\nnão é possível recuperar os dados");
+            if(typeof index === "number" && index >= 0 && index <= 99 && this.migration.existTable(tableName + index)){
+                migrationTable += index;
+            }
+            const recovery = this.migration.recovery(migrationTable);
+            const getRules = {
+                rules: recovery.rules,
+                ...recovery.functions
+            }
+            return new Table(recovery.tableName, getRules, this, this.migration, migrationTable);
+        }
         validation.isMinMax( 
             validation.validType( tableName, 
                 {type: "string", parameterName: "tableName"}
@@ -24,7 +41,17 @@ class Localdb{
             valueDefault: "any",
             uniqueIndex: ["boolean", "undefined"]
         }, true );
-        return new Table(tableName, fields, this);
+        const getRules = setRules(fields);
+        const migrationTable = this.migration.register(migration, tableName, getRules.rules, index);
+        return new Table(tableName, getRules, this, this.migration, migrationTable);
+    }
+
+    clearMigrations(){
+        const db = Fs.read;
+        if(db?.migrations){
+            db.migrations = {listExecuted: []};
+            Fs.create(db);
+        }
     }
 
     getTable(tableName){
