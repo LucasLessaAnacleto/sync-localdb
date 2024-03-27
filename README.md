@@ -100,7 +100,7 @@ o nome atual e o novo nome do campo. Além disso é possível, deletar um campo 
 <br><br>  
 
 ```js
-localdb.renameTable("users", "usuarios"); // alterou o nome da tabela 'users' para 'usuarios'
+userTable.renameTable("users", "usuarios"); // alterou o nome da tabela 'users' para 'usuarios'
 userTable.renameField("id", "userID"); // alterou o campo 'id' da tabela contida na instancia 'userTable', renomeando para 'userID'
 userTable.dropField("age"); // deletou a coluna 'age' e todos os dados contida nela da tabela contida na instancia 'userTable'
 ``` 

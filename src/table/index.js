@@ -1,6 +1,6 @@
 const validation = require("../scripts/ValidationHandler.js");
 const Fs = require("../scripts/fileSystem.js");
-const { uuid, symbols, registerTable, updateRegisterTable } = require("./configuration.js");
+const { uuid, symbols, registerTable, updateRegisterTable, registerMigration } = require("./configuration.js");
 
 const insertData = function(tableName, rowData){  
     const db = Fs.read;
@@ -38,7 +38,7 @@ class Table {
         this.localdb = localdb;
         this.migration = migrations;
         this.migrationTable = migrationTable;
-        if(!this.getTable) Fs.add({tableName: this.name, data: []});
+        if(!this.localdb.existTable(name)) Fs.add({tableName: this.name, data: []})
         registerTable(this.name);
     }
 
@@ -180,7 +180,9 @@ class Table {
     // DDL
 
     renameTable(newTableName, objMigration){
+        if(newTableName === this.name) return;
         const migration = this.migration.error(objMigration);
+        registerMigration(migration);
         if(this.migration.executed(migration)) return;
         if(typeof newTableName !== "string" || newTableName.length < 1) throw new Error("Esse nome nao é válido para uma tabela");
         const db = Fs.read;
@@ -196,12 +198,16 @@ class Table {
         }else{
             throw new Error("Não é possível renomeiar a tabela no momento, já existe uma tabela criada com esse nome!");
         }
-        this.migration.updateName(migration, this.name, newTableName);
+        this.migration.updateName(migration, this.migrationTable, newTableName);
         updateRegisterTable(this.name, newTableName);
         this.name = newTableName;
     }
 
-    renameField(currentNameField, newNameField){
+    renameField(currentNameField, newNameField, objMigration){
+        if(currentNameField === newNameField) return;
+        const migration = this.migration.error(objMigration);
+        registerMigration(migration);
+        if(this.migration.executed(migration)) return;
         if(typeof currentNameField !== "string" || currentNameField.length < 1 
         || typeof newNameField !== "string" || newNameField.length < 1) 
             throw new Error("O nome do campo atual ou o novo nome do campo estão inválidos, devem ser strings");
@@ -218,12 +224,27 @@ class Table {
             }
             db[this.name][i] = newRowData;
         });
-        Fs.create(db);
+        const rules = {types: {}, optional: {}, valueDefaults: {}, uniqueIndex: {}};
+        Object.keys(this.rules?.types)?.forEach( (field) => {
+            let nameField = field;
+            if(field === currentNameField){
+                nameField = newNameField;
+            }
+            rules.types[nameField] = this.rules.types[field];
+            rules.optional[nameField] = this.rules.optional[field];
+            rules.valueDefaults[nameField] = this.rules.valueDefaults[field];
+            rules.uniqueIndex[nameField] = this.rules.uniqueIndex[field];
+        } )
+        this.migration.updateRules(migration, this.migrationTable, rules, undefined, db);
+        this.rules = rules;
     }
 
-    dropField(nameField){
+    dropField(nameField, objMigration){
         if(typeof nameField !== "string" || nameField.length < 1) 
             throw new Error("O nome do campo está inválido, deve ser strings");
+        const migration = this.migration.error(objMigration);
+        registerMigration(migration);
+        if(this.migration.executed(migration)) return;
         const db = Fs.read;
         const deleteList = [];
         db[this.name].forEach((rowData, i) => {
@@ -239,12 +260,23 @@ class Table {
                 deleteList.push( i );
             }
         });
-        let j = 0;
-        deleteList.sort((a,b) => a > b).forEach(i => {
-
-            db[this.name].splice(i-(j++),1);
-        })
-        Fs.create(db);
+        const tableArray = [];
+        db[this.name]?.forEach( (rowData, i) => {
+            if( !deleteList.includes(i) ){
+                tableArray.push(rowData);
+            }
+        } );
+        db[this.name] = tableArray;
+        const rules = {types: {}, optional: {}, valueDefaults: {}, uniqueIndex: {}};
+        Object.keys(this.rules?.types)?.forEach( (field) => {
+            if(field !== nameField){
+                rules.types[field] = this.rules.types[field];
+                rules.optional[field] = this.rules.optional[field];
+                rules.valueDefaults[field] = this.rules.valueDefaults[field];
+                rules.uniqueIndex[field] = this.rules.uniqueIndex[field];
+            }
+        } )
+        this.migration.updateRules(migration, this.migrationTable, rules, undefined, db);  
     }
 
     // OUTERS

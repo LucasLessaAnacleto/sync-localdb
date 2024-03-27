@@ -14,7 +14,9 @@ const symbols = {
 }
 
 const tablesMonitor = [];
+const migrationMonitor = [];
 let onMonitor = false;
+let onMigrations = false;
 
 class Configuration{
     static get symbols(){
@@ -57,6 +59,11 @@ class Configuration{
             isUniqueIndexField
         }
     }
+    static registerMigration(migration){
+        if(!migrationMonitor.includes(migration)){
+            migrationMonitor.push(migration);
+        }
+    }
     static registerTable(tableName){
         tablesMonitor.push( tableName );
     }
@@ -71,18 +78,41 @@ class Configuration{
         if(!onMonitor){
             validation.isMinMax(validation.validType(time, {type: "number", parameterName: "time"}),
             {min: 0.25, max: 10})
-            setTimeout( () => {
+            setTimeout( async() => {
                 const db = Fs.read;
                 const newDb = {};
+                const newMigration = {listExecuted: []};
+                let newListExected = [];
                 let change = false;
-                for(const tableName in db){
-                    if(tablesMonitor.includes(tableName) || tableName === "migrations"){
-                        newDb[tableName] = db[tableName];
-                    }else{
-                        change = true;
+                const promise1 = new Promise((res) => {
+                    for(const tableName in db){
+                        if(tablesMonitor.includes(tableName) || tableName === "migrations"){
+                            newDb[tableName] = db[tableName];
+                            newMigration[tableName] = db.migrations[tableName];
+                        }else{
+                            change = true;
+                        }
                     }
-                }
+                    res();
+                });
+                const promise2 = new Promise( (res) => {
+                    if(onMigrations){
+                        for(const mig of db.migrations.listExecuted){
+                            if(migrationMonitor.includes(mig)){
+                                newListExected.push(mig)
+                            }else{
+                                change = true;
+                            } 
+                        }
+                    }else{
+                        newListExected = db.migrations.listExecuted;
+                    }     
+                    res();
+                } )
+                await Promise.all([ promise1, promise2 ]); 
                 if(!change) return;
+                newMigration.listExecuted = newListExected;
+                newDb.migrations = newMigration;
                 Fs.create(newDb);
             }, time * (60 * 1000) );
             onMonitor = true;
@@ -124,10 +154,10 @@ class Configuration{
             return migrationTable;
         }
         function getFunctionsRules(rules){
-            const types = rules.type;
+            const types = rules.types;
             const inputTypes = {};
             for(const typeName in types){
-                inputTypes[typeName] = rules.optional === true || rules.valueDefaults[typeName] !== null ? ["undefined"].concat(types[typeName]) : types[typeName];
+                inputTypes[typeName] = rules.optional[typeName] === true || rules.valueDefaults[typeName] !== null ? ["undefined"].concat(types[typeName]) : types[typeName];
             }
             const validInputEntity = (entity) => !!validation.validObjectType(entity, inputTypes);
             const isOptionalField = (field) => rules.optional[field] === true;
@@ -143,11 +173,11 @@ class Configuration{
         function existTb(db, tableName){
             return typeof db.migrations[tableName] === 'object';
         }
-        function findMigrationTable(db, tableName){
-            return Object.keys(db.migrations).find( table => {
-                if(table === "listExecuted") return false;
-                return (db.migrations[table]?.tableName === tableName);
-            } );
+        function addControlMigration(migration, db){
+            if(!migrationsExecutions.find((m) => m === migration)){
+                migrationsExecutions.push(migration);
+            }
+            if(!!db) addMigration(db,migration);
         }
         return {
             error(migration){
@@ -166,39 +196,51 @@ class Configuration{
                 if(!tableName || typeof tableName !== 'string') throw new Error("O nome da tabela está inválido");
                 if(typeof rules !== "object" || rules === null) throw new Error("O parametro 'rules' deve ser passado com a regras da tabela");
                 const db = Fs.read;
+                Object.keys(rules?.valueDefaults)?.forEach((field) => {
+                        rules.valueDefaults[field] = (rules?.valueDefaults[field] !== undefined && rules?.valueDefaults[field] !== null);
+                });
+                addControlMigration(migration);
                 const migrationTable = addMigrationTable(db, migration, tableName, rules, index);
-                migrationsExecutions.push(migration);
                 return migrationTable;
             },
-            updateName(migration, tableName, newTableName){
+            updateName(migration, migrationTable, newTableName){
                 const db = Fs.read;
-                if(!existTb(db, tableName)){
-                    const findedMigrationTable = findMigrationTable(db, tableName);
-                    if(!findedMigrationTable){
-                        throw new Error("Essa tabela não existe nas migrations atual");
-                    }
-                    tableName = findedMigrationTable;
-                } 
-                db.migrations[tableName].tableName = newTableName;
-                db.migrations.listExecuted.push(migration);
-                Fs.create(db);
-                migrationsExecutions.push(migration);
-            },
-            updateRules(tableName, newRules){
-                const db = Fs.read;
-                if(!existTb(db, tableName)) throw new Error("Essa tabela não existe nas migrations atual");
-                db.migrations[tableName].rules = newRules;
+                if(!db.migrations[migrationTable]) throw new Error("Não é possível renomeiar, pois não entramos o endereço da tabela nas migrations\nSe o problema persistir, use o localdb.clearMigrations() e se mesmo assim não conseguir, tire todos os localdb.createTable() \ne espere o tempo necessario para o monitoramento de tabelas limpar o banco de dados");
+                db.migrations[migrationTable].tableName = newTableName;
+                addControlMigration(migration, db);
                 Fs.create(db);
             },
-            recovery(tableName){
+            updateRules(migration, tableName, newRules, index, dba){
+                let db;
+                if(!!dba) {db = dba}else{db = Fs.read}
+                let migrationTable = tableName;
+                if(Object.keys(db.migrations).find(mig => mig === tableName + index)) migrationTable += index;
+                if(!db.migrations[migrationTable]) throw new Error("Não é possível atualizar as regras da tabela pois não foi encontrada!");
+                Object.keys(newRules?.valueDefaults)?.forEach((field) => {
+                    newRules.valueDefaults[field] = (![null, undefined, false].includes(newRules?.valueDefaults[field]));
+                });
+                db.migrations[migrationTable].rules = newRules;
+                addControlMigration(migration, db);
+                Fs.create(db);
+                return migrationTable;
+            },
+            recovery(tableName, fieldsOriginal){
                 const db = Fs.read;
                 if(!db.migrations[tableName]) throw new Error("Não é possível recuperar dados das migrations");
                 const result = db.migrations[tableName];
+                const rules = result.rules;
+                Object.keys(rules.valueDefaults).forEach((field) => {
+                    if(rules.valueDefaults[field] === true){
+                        const fieldOriginal = fieldsOriginal.find( fieldOriginal => fieldOriginal.fieldName === field );
+                        if(!fieldOriginal || !fieldOriginal?.valueDefault) throw new Error("Não foi possível carregar o 'valueDefault', não remova os valores padrões da da função 'localdb.createTable', bote novamente")
+                        rules.valueDefaults[field] = fieldOriginal.valueDefault;
+                    }
+                })  
                 try{
                     return {
-                        rules: result.rules,
+                        rules: rules,
                         tableName: result.tableName,
-                        functions: getFunctionsRules(result.rules)
+                        functions: getFunctionsRules(rules)
                     }
                 }catch(err){
                     throw new Error("Não é possível recuperar dados das migrations\ndetalhes: "+err.message)
@@ -207,6 +249,12 @@ class Configuration{
             existTable(tableName){
                 const db = Fs.read;
                 return existTb(db, tableName);
+            },
+            scheduleMigration(){
+                onMigrations = true;
+            },
+            listMigrations(){
+                return Fs.read.migrations.listExecuted;
             }
         }
     }

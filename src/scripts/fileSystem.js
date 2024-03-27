@@ -13,7 +13,7 @@ class FileSystem{
 
     static create(json){
         try{
-            const jsonStr = JSON.stringify(json, null, 2);
+            const jsonStr = JSON.stringify(json, null, 0);
             fs.writeFileSync(myPath, jsonStr, { encoding: "utf-8" } );
             n++;
             console.log("redering "+n);
