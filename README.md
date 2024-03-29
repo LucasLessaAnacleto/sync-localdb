@@ -160,6 +160,114 @@ dependendo se salvou com sucesso ou não.
 <div id="2.0"><br>
 
 ## O que mudou na versão v2.0?
+<br>
+<ol>
+    <li><a href=#mudance01>Refatoração no codigo</a></li>
+    <li><a href=#mudance02>Migrations</a></li>
+    <li><a href=#mudance03>Forma de utilizar funções "ddl"</a></li>
+    <li><a href=#mudance04>Monitoramento de migrations</a></li>
+</ol>
+<br>
+<hr>
+<div id="mudance01">
+    <h3>Otimização e Refatoração</h3>
+    Todo o código de leitura e gravação no banco de dados local, foram refatorados para uma forma mais eficaz e performativa. Porem essa mudança não interfere diretamente na utilização da lib.
+</div>
+<br>
+<hr>
+<div id="mudance02">
+    <h3>Migrations</h3>
+    Foi adicionado a feature de “Migrations” que permite que você gerencie as alterações na estrutura do banco de dados ao longo do tempo. Já que o sync-localdb é um banco criado em tempo de execução, antes se você colocasse no código um renameField, na próxima execução do código, se não removesse ele iria tentar renomear de novo e iria cair em um erro de nenhuma tabela encontrada com esse nome. Porém com o controle das migrations a lib consegue entender se aquela operação ja foi executada com sucesso ou não.<br><br>
+</div>
+<br>
+<hr>
+<div id="mudance03">
+    <h3>Como utilizar as migrations?</h3>
+    As migrations são utilizadas nas funções "ddl" como podemos dizer, que são as funções que criam ou alteram estruturas de tabelas. Quais as funções que fazem isso? localdb.createTable, table.renameTable, table.renameField e table.dropField.
+<br><br><hr><br>
 
+* <strong>Criar tabelas:</strong><br>
+A forma de criar tabelas mudou um pouco da versão 1.0, além de passar a nome da tabela e os campos com suas regras, nesse objeto deve conter também a propriedade 'migration' passando uma string com um nome de migration que deseja.
+<br>
+```js
+const userTable = localdb.createTable({
+    tableName: "users",
+    fields: [
+        {
+            fieldName: "userID",
+            fieldType: "string",
+            uniqueIndex: true,
+            valueDefault: Localdb.value_default.AUTO_INCREMENT
+        },
+        {
+            fieldName: "name",
+            fieldType: "string"
+        },
+        {
+            fieldName: "age",
+            fieldType: "integer"
+        }
+    ], // Além de passar essas propriedades, não esqueça de passar a migration
+    migration: "create_table",
+    // restart: false,
+    // index: 0
+});
+```
+Agora ele criará a tabela na primeira execução, e nas próximas execuções ele irá pegar do cache da migration, e não lerá novamente as informações da função 'createTable'.
+<h3>Propriedade: restart</h3>
+Mas e se caso eu criar a tabela, mas depois querer adicionar um novo campo, ou remover um campo, ou adicionar a regra de 'uniqueIndex' entre outras possíveis mudanças na tabela que poderia ser feito. Se eu mudar apenas o nome da migration como por exemplo para "create_table2", isso faria com que esse código fosse executado, porém, o sync-localdb iria entender que você esta querendo criar uma tabela nova, e cairia no erro "Essa tabela já existe e não pode ser criada novamente", então nesse caso você deve utilizar a propriedade <strong>restart</strong> como true, que a lib iria ler novamente os campos e iria atualizar o cache da tabela.
+<h3>Propriedade: index</h3>
+Toda a tabela é armazenada no cache depois de sua primeira execução, e são indexadas com os seus nomes originais, o nome da tabela de quando foi executado a primeira vez. Então pode gerar conflitos no caso de alteração no nome da tabela, por exemplo: "renomeei a tabela A para B, e posteriormente criei outra tabela com o nome de A", isso causaria erro, mas você pode fazer isso adicionando a propriedade <strong>index</strong> com um número de 0 a 99.
+<h3>Observações</h3>
+<ul>
+<li> A função 'createTable' não pode ser removido depois de executar, pois você irá precisar da instância da tabela para poder utilizar as operações com o banco local.</li>
+<br>
+<li>O sync-localdb precisará em toda a execução do nome da tabela com a propriedade 'tableName' e o nome da migration com a propriedade 'migration', então nunca remova-as ou as modifique, só no caso se for sua real intenção de não carregar normalmente a tabela.</li>
+<br>
+<li> Se um campo utilizar um valor padrão, ou seja, tiver um 'valueDefault' definido, toda vez que carregar a tabela, a lib precisará consultar a propriedade 'fields' no objeto de parametro do 'createTable', pois não é possível armazenar uma função no cache.</li>
+</ul>
+<br><hr><br>
+
+* <strong>Renomear tabelas:</strong><br>
+Agora para usar o 'table.renameTable' é necessário também passar um objeto contendo a migration.<br> Exemplo:
+<br>
+```js
+userTable.renameTable("user", {migration: "rename_table"});
+```
+No caso do exemplo acima, alterou o nome da tabela de "users" (o nome atual) para "user". Porém internamente essa tabela ainda é referenciada como "user" no cache da migration, pois se não o usuário iria ter que mudar a propriedade 'tableName' toda vez que usasse um 'renameTable'. <br><br>
+O mais interessante do uso da migration nessa função é que você não precisa se preocupar em remover o código para não haver duplicações, eu posso deixar o renameTable em todas as execuções que a lib entenderá que já foi executada e assim não executará novamente, o que na versão 1.0 não era possível.
+<br><hr><br>
+
+* <strong>Renomear campos:</strong><br>
+Para utilizar o 'table.renameField' também é necessário passar um objeto contendo a migration.<br>Exemplo:<br>
+```js
+userTable.renameField("name", "completeName", {migration: "rename_field"});
+```
+Neste exemplo ele está alterando o nome do campo "name" para "completeName" da tabela instânciada no 'userTable', que nesse caso é a tabela "user". Assim como no 'renameTable', o sync-localdb identificará se ja foi ou não executada através da migration.<br><br>
+Uma observação a se fazer, é que se você utilizar o renameField e depois for dar um 'restart' na tabela, você deve deixar os campos da propriedade 'fields' correto com o nome renomeado.<br><br>
+Uma sugestão, é não utilizar o 'restart' na tabela para renomear um campo se já tiver dados cadastrados com o nome do campo antigo, pois o 'restart' só reescreverá as regras dos campos no cache, enquanto o renameField irá alterar o nome do campo no cache da migration e ao mesmo tempo alterar o nome do campo antigo para o novo, nas linhas de dados já adicionados na tabela.<br> Porém se não houver nenhum dado adicionado ainda, é melhor e mais prático apenas restartar a tabela com a correção no nome do campo.
+<br><hr><br>
+
+* <strong>Dropar campos:</strong><br>
+Para utilizar o 'table.dropField' assim como o 'renameTable' e 'renameField', é necessário passar um objeto contendo a migration. Veja o exemplo:
+```js
+userTable.dropField("age", {migration: "drop_field"});
+```
+Aqui, estamos deletando da tabela instânciada no 'userTable', que nesse caso é a tabela "user", o campo "age", o sync-localdb identificará se ja foi ou não executada através da migration.<br><br>
+Uma sugestão, que foi dado no 'renameField' mas que também serve para o 'dropField', é que o ideal apenas utilizar o 'restart' para remover campos da tabela no caso de não houver dados adicionados com a estrutura da tabela anterior, pois quando restarta a tabela ele apenas reescreve as regras dos campos no cache das migrations, enquanto o 'dropField' ira remover o campo do cache das migrations e remover tambem de cada linha adicionada nessa tabela.  
+</div>
+<br>
+<hr>
+<div id="mudance04">
+    <h3>Monitoramento de migrations</h3>
+    Assim como na versão já tinha o monitoramento de tables, que servia deletar automaticamente tabelas que não estão mais em utilização, por padrão depois de 3 minutos que o código foi executado, porém pode ser mudado para até 0.25 minutos (15 segundos) na hora de instanciar o Localdb. Na versão 2.0, as migrations também tem esse controle, ao mesmo tempo que ira remover as tabelas que não estão em utilização, também removerá as migrations que não estão mais sendo executadas. Mas no caso das migrations, o usuário precisa utilizar o localdb.clearMigrations, que fará com que o sync-localdb monitore as migrations ativas.<br><br>
+    Pode ser bastante útil para no caso de um 'restart' em uma tabela, para restartar é necessário mudar a migration, ou seja a migration antiga ficará em desuso, porém se você esquecer que já tinha sido executada e utilizar em uma outra função "ddl", ela não será executada. Então pode ser interessante utilizar essa função em situações como essas.
+
+```js
+const localdb = new Localdb(1); // O valor passado será multiplicado por 60, ou seja esse 1 é equivalente a 60s ou a 1m.
+localdb.clearMigrations();
+```
+No exemplo acima, as migrations que não foram utilizadas nessa executação, serão deletados do cache em 1 minutos após rodar o código.
+</div>
 </div>
 
