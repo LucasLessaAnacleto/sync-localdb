@@ -243,7 +243,7 @@ userTable.renameField("name", "completeName", {migration: "rename_field"});
 Neste exemplo ele está alterando o nome do campo "name" para "completeName" da tabela instânciada no 'userTable', que nesse caso é a tabela "user". Assim como no 'renameTable', o sync-localdb identificará se ja foi ou não executada através da migration.<br><br>
 Uma observação a se fazer, é que se você utilizar o renameField e depois for dar um 'restart' na tabela, você deve deixar os campos da propriedade 'fields' correto com o nome renomeado.<br><br>
 Uma sugestão, é não utilizar o 'restart' na tabela para renomear um campo se já tiver dados cadastrados com o nome do campo antigo, pois o 'restart' só reescreverá as regras dos campos no cache, enquanto o renameField irá alterar o nome do campo no cache da migration e ao mesmo tempo alterar o nome do campo antigo para o novo, nas linhas de dados já adicionados na tabela.<br> Porém se não houver nenhum dado adicionado ainda, é melhor e mais prático apenas restartar a tabela com a correção no nome do campo.
-<br><hr><br>
+<hr>
 
 * <strong>Dropar campos:</strong><br>
 Para utilizar o 'table.dropField' assim como o 'renameTable' e 'renameField', é necessário passar um objeto contendo a migration. Veja o exemplo:
@@ -253,12 +253,11 @@ userTable.dropField("age", {migration: "drop_field"});
 Aqui, estamos deletando da tabela instânciada no 'userTable', que nesse caso é a tabela "user", o campo "age", o sync-localdb identificará se ja foi ou não executada através da migration.<br><br>
 Uma sugestão, que foi dado no 'renameField' mas que também serve para o 'dropField', é que o ideal apenas utilizar o 'restart' para remover campos da tabela no caso de não houver dados adicionados com a estrutura da tabela anterior, pois quando restarta a tabela ele apenas reescreve as regras dos campos no cache das migrations, enquanto o 'dropField' ira remover o campo do cache das migrations e remover tambem de cada linha adicionada nessa tabela.  
 </div>
-<br>
 <hr>
 <div id="mudance04">
     <h3>Monitoramento de migrations</h3>
     Assim como na versão já tinha o monitoramento de tables, que servia deletar automaticamente tabelas que não estão mais em utilização, por padrão depois de 3 minutos que o código foi executado, porém pode ser mudado para até 0.25 minutos (15 segundos) na hora de instanciar o Localdb. Na versão 2.0, as migrations também tem esse controle, ao mesmo tempo que ira remover as tabelas que não estão em utilização, também removerá as migrations que não estão mais sendo executadas. Mas no caso das migrations, o usuário precisa utilizar o localdb.clearMigrations, que fará com que o sync-localdb monitore as migrations ativas.<br><br>
-    Pode ser bastante útil para no caso de um 'restart' em uma tabela, para restartar é necessário mudar a migration, ou seja a migration antiga ficará em desuso, porém se você esquecer que já tinha sido executada e utilizar em uma outra função "ddl", ela não será executada. Então pode ser interessante utilizar essa função em situações como essas.
+    Pode ser bastante útil para no caso de um 'restart' em uma tabela, para restartar é necessário mudar a migration, ou seja a migration antiga ficará em desuso, porém se você esquecer que já tinha sido executada e utilizar em uma outra função "ddl", ela não será executada. Então pode ser interessante utilizar essa função em situações como essas.<br>
 
 ```js
 const localdb = new Localdb(1); // O valor passado será multiplicado por 60, ou seja esse 1 é equivalente a 60s ou a 1m.
