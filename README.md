@@ -220,8 +220,6 @@ Toda a tabela é armazenada no cache depois de sua primeira execução, e são i
 <li> A função 'createTable' não pode ser removido depois de executar, pois você irá precisar da instância da tabela para poder utilizar as operações com o banco local.</li>
 <br>
 <li>O sync-localdb precisará em toda a execução do nome da tabela com a propriedade 'tableName' e o nome da migration com a propriedade 'migration', então nunca remova-as ou as modifique, só no caso se for sua real intenção de não carregar normalmente a tabela.</li>
-<br>
-<li> Se um campo utilizar um valor padrão, ou seja, tiver um 'valueDefault' definido, toda vez que carregar a tabela, a lib precisará consultar a propriedade 'fields' no objeto de parametro do 'createTable', pois não é possível armazenar uma função no cache.</li>
 </ul>
 <hr>
 
