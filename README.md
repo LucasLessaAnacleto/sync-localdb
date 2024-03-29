@@ -156,8 +156,8 @@ dependendo se salvou com sucesso ou não.
 * **existValueInTable**: retorna true caso exista aquele valor passado no paramêtro 'value' existe no campo passado no paramêtro 'field', se nao retorna false
 
 * **existAtRow**: retorna true caso exista essa linha na tabela.
-<br><br>
-<div id="2.0"><br>
+<br>
+<div id="2.0">
 
 ## O que mudou na versão v2.0?
 <br>
@@ -167,28 +167,26 @@ dependendo se salvou com sucesso ou não.
     <li><a href=#mudance03>Forma de utilizar funções "ddl"</a></li>
     <li><a href=#mudance04>Monitoramento de migrations</a></li>
 </ol>
-<br>
 <hr>
 <div id="mudance01">
     <h3>Otimização e Refatoração</h3>
     Todo o código de leitura e gravação no banco de dados local, foram refatorados para uma forma mais eficaz e performativa. Porem essa mudança não interfere diretamente na utilização da lib.
 </div>
-<br>
 <hr>
 <div id="mudance02">
     <h3>Migrations</h3>
-    Foi adicionado a feature de “Migrations” que permite que você gerencie as alterações na estrutura do banco de dados ao longo do tempo. Já que o sync-localdb é um banco criado em tempo de execução, antes se você colocasse no código um renameField, na próxima execução do código, se não removesse ele iria tentar renomear de novo e iria cair em um erro de nenhuma tabela encontrada com esse nome. Porém com o controle das migrations a lib consegue entender se aquela operação ja foi executada com sucesso ou não.<br><br>
+    Foi adicionado a feature de “Migrations” que permite que você gerencie as alterações na estrutura do banco de dados ao longo do tempo. Já que o sync-localdb é um banco criado em tempo de execução, antes se você colocasse no código um renameField, na próxima execução do código, se não removesse ele iria tentar renomear de novo e iria cair em um erro de nenhuma tabela encontrada com esse nome. Porém com o controle das migrations a lib consegue entender se aquela operação ja foi executada com sucesso ou não.
 </div>
-<br>
+
 <hr>
 <div id="mudance03">
     <h3>Como utilizar as migrations?</h3>
     As migrations são utilizadas nas funções "ddl" como podemos dizer, que são as funções que criam ou alteram estruturas de tabelas. Quais as funções que fazem isso? localdb.createTable, table.renameTable, table.renameField e table.dropField.
-<br><br><hr><br>
+<br><hr>
 
 * <strong>Criar tabelas:</strong><br>
 A forma de criar tabelas mudou um pouco da versão 1.0, além de passar a nome da tabela e os campos com suas regras, nesse objeto deve conter também a propriedade 'migration' passando uma string com um nome de migration que deseja.
-<br>
+
 ```js
 const userTable = localdb.createTable({
     tableName: "users",
@@ -226,11 +224,11 @@ Toda a tabela é armazenada no cache depois de sua primeira execução, e são i
 <br>
 <li> Se um campo utilizar um valor padrão, ou seja, tiver um 'valueDefault' definido, toda vez que carregar a tabela, a lib precisará consultar a propriedade 'fields' no objeto de parametro do 'createTable', pois não é possível armazenar uma função no cache.</li>
 </ul>
-<br><hr><br>
-
+<hr>
+<br>
 * <strong>Renomear tabelas:</strong><br>
 Agora para usar o 'table.renameTable' é necessário também passar um objeto contendo a migration.<br> Exemplo:
-<br>
+
 ```js
 userTable.renameTable("user", {migration: "rename_table"});
 ```
