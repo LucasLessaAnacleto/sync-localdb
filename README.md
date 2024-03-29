@@ -160,7 +160,6 @@ dependendo se salvou com sucesso ou não.
 <div id="2.0">
 
 ## O que mudou na versão v2.0?
-<br>
 <ol>
     <li><a href=#mudance01>Refatoração no codigo</a></li>
     <li><a href=#mudance02>Migrations</a></li>
@@ -225,7 +224,7 @@ Toda a tabela é armazenada no cache depois de sua primeira execução, e são i
 <li> Se um campo utilizar um valor padrão, ou seja, tiver um 'valueDefault' definido, toda vez que carregar a tabela, a lib precisará consultar a propriedade 'fields' no objeto de parametro do 'createTable', pois não é possível armazenar uma função no cache.</li>
 </ul>
 <hr>
-<br>
+
 * <strong>Renomear tabelas:</strong><br>
 Agora para usar o 'table.renameTable' é necessário também passar um objeto contendo a migration.<br> Exemplo:
 
@@ -234,7 +233,7 @@ userTable.renameTable("user", {migration: "rename_table"});
 ```
 No caso do exemplo acima, alterou o nome da tabela de "users" (o nome atual) para "user". Porém internamente essa tabela ainda é referenciada como "user" no cache da migration, pois se não o usuário iria ter que mudar a propriedade 'tableName' toda vez que usasse um 'renameTable'. <br><br>
 O mais interessante do uso da migration nessa função é que você não precisa se preocupar em remover o código para não haver duplicações, eu posso deixar o renameTable em todas as execuções que a lib entenderá que já foi executada e assim não executará novamente, o que na versão 1.0 não era possível.
-<br><hr><br>
+<hr>
 
 * <strong>Renomear campos:</strong><br>
 Para utilizar o 'table.renameField' também é necessário passar um objeto contendo a migration.<br>Exemplo:<br>
