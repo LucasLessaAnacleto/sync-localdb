@@ -179,6 +179,24 @@ class Configuration{
             }
             if(!!db) addMigration(db,migration);
         }
+        function getValueDefaultCacheMigration(valueDefaults){
+            Object.keys(valueDefaults)?.forEach((field) => {
+                if(![undefined, null, false].includes(valueDefaults[field])){
+                    if(valueDefaults[field]?.constructor === Symbol){
+                        const valueDefaultFinded = Object.keys(symbols).find((s) => symbols[s] === valueDefaults[field]);
+                        if(!valueDefaultFinded) throw new Error("Esse 'valueDefault' está inválido!");
+                        valueDefaults[field] = valueDefaultFinded;
+                    }else if(typeof valueDefaults[field] === "function"){
+                        valueDefaults[field] = String(valueDefaults[field]);
+                    }else{
+                        valueDefaults[field] = false;
+                    }
+                }else{
+                    valueDefaults[field] = false;
+                }
+            });
+            return valueDefaults;
+        }
         return {
             error(migration){
                 let input = migration;
@@ -196,9 +214,7 @@ class Configuration{
                 if(!tableName || typeof tableName !== 'string') throw new Error("O nome da tabela está inválido");
                 if(typeof rules !== "object" || rules === null) throw new Error("O parametro 'rules' deve ser passado com a regras da tabela");
                 const db = Fs.read;
-                Object.keys(rules?.valueDefaults)?.forEach((field) => {
-                        rules.valueDefaults[field] = (rules?.valueDefaults[field] !== undefined && rules?.valueDefaults[field] !== null);
-                });
+                rules.valueDefaults = getValueDefaultCacheMigration(rules.valueDefaults);
                 addControlMigration(migration);
                 const migrationTable = addMigrationTable(db, migration, tableName, rules, index);
                 return migrationTable;
@@ -216,9 +232,7 @@ class Configuration{
                 let migrationTable = tableName;
                 if(Object.keys(db.migrations).find(mig => mig === tableName + index)) migrationTable += index;
                 if(!db.migrations[migrationTable]) throw new Error("Não é possível atualizar as regras da tabela pois não foi encontrada!");
-                Object.keys(newRules?.valueDefaults)?.forEach((field) => {
-                    newRules.valueDefaults[field] = (![null, undefined, false].includes(newRules?.valueDefaults[field]));
-                });
+                newRules.valueDefaults = getValueDefaultCacheMigration(newRules.valueDefaults);
                 db.migrations[migrationTable].rules = newRules;
                 addControlMigration(migration, db);
                 Fs.create(db);
@@ -230,12 +244,14 @@ class Configuration{
                 const result = db.migrations[tableName];
                 const rules = result.rules;
                 Object.keys(rules.valueDefaults).forEach((field) => {
-                    if(rules.valueDefaults[field] === true){
-                        const fieldOriginal = fieldsOriginal.find( fieldOriginal => fieldOriginal.fieldName === field );
-                        if(!fieldOriginal || !fieldOriginal?.valueDefault) throw new Error("Não foi possível carregar o 'valueDefault', não remova os valores padrões da da função 'localdb.createTable', bote novamente")
-                        rules.valueDefaults[field] = fieldOriginal.valueDefault;
+                    if(rules.valueDefaults[field]){
+                        if(symbols[rules.valueDefaults[field]] !== undefined){
+                            rules.valueDefaults[field] = symbols[rules.valueDefaults[field]];
+                        }else{
+                            rules.valueDefaults[field] = eval(rules.valueDefaults[field]);
+                        }
                     }
-                })  
+                });
                 try{
                     return {
                         rules: rules,

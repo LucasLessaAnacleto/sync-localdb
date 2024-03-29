@@ -309,7 +309,7 @@ class Table {
         }else if(symbols.time_stamp === symbol){
             value = Date.now();
         }else{
-            throw new Error("Esse tipo de valor padrão não foi reconhecido, utilize uma função personalisada");
+            throw new Error("Esse tipo de valor padrão não foi reconhecido, utilize uma função personalizada");
         }
         try{
             value = (typeEspectate === "string") ? String(value) : 

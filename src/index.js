@@ -46,7 +46,7 @@ class Localdb{
         if(this.existTable(tableName) && !restart ) throw new Error("Essa tabela já existe e não pode ser criada novamente")
         const getRules = setRules(fields);
         let migrationTable;
-        if(restart){
+        if(this.existTable(tableName) && restart){
             migrationTable = this.migration.updateRules(migration, tableName, getRules.rules, index);
         }else{
             migrationTable = this.migration.register(migration, tableName, getRules.rules, index);
