@@ -257,7 +257,7 @@ Uma sugestão, que foi dado no 'renameField' mas que também serve para o 'dropF
 <div id="mudance04">
     <h3>Monitoramento de migrations</h3>
     Assim como na versão já tinha o monitoramento de tables, que servia deletar automaticamente tabelas que não estão mais em utilização, por padrão depois de 3 minutos que o código foi executado, porém pode ser mudado para até 0.25 minutos (15 segundos) na hora de instanciar o Localdb. Na versão 2.0, as migrations também tem esse controle, ao mesmo tempo que ira remover as tabelas que não estão em utilização, também removerá as migrations que não estão mais sendo executadas. Mas no caso das migrations, o usuário precisa utilizar o localdb.clearMigrations, que fará com que o sync-localdb monitore as migrations ativas.<br><br>
-    Pode ser bastante útil para no caso de um 'restart' em uma tabela, para restartar é necessário mudar a migration, ou seja a migration antiga ficará em desuso, porém se você esquecer que já tinha sido executada e utilizar em uma outra função "ddl", ela não será executada. Então pode ser interessante utilizar essa função em situações como essas.<br>
+    Pode ser bastante útil para no caso de um 'restart' em uma tabela, para restartar é necessário mudar a migration, ou seja a migration antiga ficará em desuso, porém se você esquecer que já tinha sido executada e utilizar em uma outra função "ddl", ela não será executada. Então pode ser interessante utilizar essa função em situações como essas.<br><br>
 
 ```js
 const localdb = new Localdb(1); // O valor passado será multiplicado por 60, ou seja esse 1 é equivalente a 60s ou a 1m.
