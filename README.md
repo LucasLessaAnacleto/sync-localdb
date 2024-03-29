@@ -21,7 +21,7 @@ const localdb = new Localdb();
 
 ## Versões:
 * <strong>v1.0</strong> - Modificado dia 14 de março de 2024
-* <a href="#2.0"><strong>v2.0</strong> - Modificado dia 14 de março de 2024</a> 
+* <a href="#2.0"><strong>v2.0</strong> - Modificado dia 28 de março de 2024</a> 
 
 ## Primeiros passos:
 
