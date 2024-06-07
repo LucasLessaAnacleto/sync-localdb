@@ -92,6 +92,7 @@ tabelas em desuso no código, se quiser mudar esse tempo, é possível declarand
 
 ```js
 const localdb = new Localdb(1); // A cada 1 minuto de tempo de execução do código, ele apagara as tabelas em desuso
+// voce ainda tem a opção de passar um segundo parâmetro que seria o `disableMonitor` que por padrão é 'false', se quiser desativar o monitoramento defina como true
 ```
 <br>
 3. Se quiser alterar o nome de uma tabela, sem perder os dados dela, utilize o método do localdb chamado 'renameTable' passando o nome atual da tabela, e o nome que 

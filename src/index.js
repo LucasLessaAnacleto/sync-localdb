@@ -6,9 +6,9 @@ const Table = require("./table/index.js");
 
 
 class Localdb{
-    constructor(timeMonitor){
+    constructor(timeMonitor, disableMonitor = false){
         if(Fs.isVoid()) Fs.create({});
-        monitorRemoveTables(timeMonitor || 3);
+        !disableMonitor && monitorRemoveTables(timeMonitor || 3);
         this.migration = migrations();
     }
 

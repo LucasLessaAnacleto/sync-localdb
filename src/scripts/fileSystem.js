@@ -2,8 +2,6 @@ const fs = require("node:fs");
 
 const { myPath } = require("./path.js");
 
-let n = 0;
-
 class FileSystem{
 
     static get read(){
@@ -15,8 +13,6 @@ class FileSystem{
         try{
             const jsonStr = JSON.stringify(json, null, 0);
             fs.writeFileSync(myPath, jsonStr, { encoding: "utf-8" } );
-            n++;
-            console.log("redering "+n);
         }catch(err){
             console.error("Não foi possível fazer a gravação do arquivo no sistema")
         }

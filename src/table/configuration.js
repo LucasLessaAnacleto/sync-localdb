@@ -137,7 +137,6 @@ class Configuration{
             addMigration(db, migration);
             let migrationTable = tableName;
             if(!!db.migrations[migrationTable]){
-                console.log("INDEX EM AÇÃO"); 
                 if(typeof index === "number" && index >= 0 && index <= 99){
                     migrationTable += String(index);
                 }
